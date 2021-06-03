@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package api.user;
+
+option go_package = "kratos-screen/api/user;user";
+option java_multiple_files = true;
+option java_package = "api.user";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+service User {
+    rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
+    rpc GetUser (GetUserRequest) returns (GetUserReply);
+    rpc ListUser (ListUserRequest) returns (ListUserReply);
+}
+
+message Message {
+    int64 id = 1;
+    string message = 2;
+}
+
+message Users {
+    int64 id = 1;
+    string name = 2;
+    int64 age = 3;
+}
+
+message CreateUserRequest {}
+message CreateUserReply {}
+
+message UpdateUserRequest {}
+message UpdateUserReply {}
+
+message DeleteUserRequest {}
+message DeleteUserReply {}
+
+message GetUserRequest {
+    int64 id = 1;
+    string name = 2 [(validate.rules).string.max_len = 5];
+}
+
+message GetUserReply {
+     Users user = 1;
+}
+
+message ListUserRequest {
+}
+
+message ListUserReply {
+    repeated Users results = 1;
+}
+
