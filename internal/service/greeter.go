@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -10,10 +12,9 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 	v1 "kratos-client/api/helloworld/v1"
+	pb "kratos-client/api/user"
 	"kratos-client/internal/biz"
 	"time"
-
-	pb "kratos-client/api/user"
 )
 
 // GreeterService is a greeter service.
@@ -32,6 +33,9 @@ func NewGreeterService(uc *biz.GreeterUsecase, logger log.Logger, provider trace
 
 // SayHello implements helloworld.GreeterServer
 func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1.HelloReply, error) {
+	foo := errors.BadRequest(v1.ErrorReason_ERROR_REASON_UNSPECIFIED.String(), "aaa")
+	//oerrors.New()
+	fmt.Println(foo)
 	conn, err := grpc.DialInsecure(ctx,
 		grpc.WithEndpoint("localhost:9502"),
 		grpc.WithMiddleware(middleware.Chain(

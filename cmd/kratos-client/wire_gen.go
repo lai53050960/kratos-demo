@@ -31,7 +31,10 @@ func initApp(confServer *conf.Server, confData *conf.Data, logger log.Logger, tr
 	greeterRepo := data.NewGreeterRepo(dataData, logger)
 	greeterUsecase := biz.NewGreeterUsecase(greeterRepo, logger)
 	greeterService := service.NewGreeterService(greeterUsecase, logger, traceTracerProvider)
-	httpServer := server.NewHTTPServer(confServer, greeterService, logger, traceTracerProvider)
+	userRepo := data.NewUserRepo(dataData, logger)
+	userUsecase := biz.NewUserUsecase(userRepo, logger)
+	userService := service.NewUserService(userUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, greeterService, userService, logger, traceTracerProvider)
 	grpcServer := server.NewGRPCServer(confServer, greeterService, logger, traceTracerProvider)
 	app := newApp(logger, httpServer, grpcServer)
 	return app, func() {

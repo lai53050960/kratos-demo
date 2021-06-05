@@ -11,4 +11,6 @@ enum ErrorReason {
   ERROR_REASON_UNSPECIFIED = 0;
 
   USER_NOT_FOUND = 1;
+  
+  SERVICE_DISABLED = 2;
 }

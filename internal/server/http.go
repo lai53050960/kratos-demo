@@ -10,12 +10,13 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 	v1 "kratos-client/api/helloworld/v1"
+	"kratos-client/api/user"
 	"kratos-client/internal/conf"
 	"kratos-client/internal/service"
 )
 
 // NewHTTPServer new a HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger, tracer trace.TracerProvider) *http.Server {
+func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, userService *service.UserService, logger log.Logger, tracer trace.TracerProvider) *http.Server {
 	var opts = []http.ServerOption{}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
@@ -39,6 +40,7 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 			logging.Server(logger),
 		),
 	)
-	srv.HandlePrefix("/", v1.NewGreeterHandler(greeter, m))
+	srv.HandlePrefix("/helloworld", v1.NewGreeterHandler(greeter, m))
+	srv.HandlePrefix("/api.user.User", user.NewUserHandler(userService, m))
 	return srv
 }
