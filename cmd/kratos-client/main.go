@@ -13,9 +13,11 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v2"
 	"kratos-client/internal/conf"
-	"os"
+	logger2 "kratos-client/internal/logger"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -47,7 +49,34 @@ func newApp(logger log.Logger, hs *http.Server, gs *grpc.Server) *kratos.App {
 
 func main() {
 	flag.Parse()
-	logger := log.NewStdLogger(os.Stdout)
+	//logger := log.NewStdLogger(os.Stdout)
+
+	encoder := zapcore.EncoderConfig{
+		TimeKey:        "t",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		CallerKey:      "caller",
+		MessageKey:     "msg",
+		StacktraceKey:  "stack",
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeCaller:   zapcore.FullCallerEncoder,
+	}
+
+	loggerZap := logger2.NewZapLogger(
+		encoder,
+		zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		zap.AddStacktrace(
+			zap.NewAtomicLevelAt(zapcore.ErrorLevel)),
+		zap.AddCaller(),
+		zap.AddCallerSkip(2),
+		zap.Development(),
+	)
+
+	//zlog := log.NewHelper(loggerZap)
+	//zlog.Infow("name", "kratos", "from", "opensource")
 
 	c := config.New(
 		config.WithSource(
@@ -71,7 +100,7 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := initApp(bc.Server, bc.Data, logger, tp)
+	app, cleanup, err := initApp(bc.Server, bc.Data, loggerZap, tp)
 	if err != nil {
 		panic(err)
 	}

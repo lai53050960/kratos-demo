@@ -28,6 +28,9 @@ func (ar *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 报错
+			//log2.Fatal(fmt.Sprintf("%+v\n", err))
+			//
+			//return nil, fmt.Errorf("%w, data is nil", err)
 			return nil, errors.New(400, "reason", "没有找到数据")
 		} else {
 			// 只记记录
