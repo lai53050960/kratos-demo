@@ -5,16 +5,9 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/middleware/recovery"
-	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 	v1 "kratos-client/api/helloworld/v1"
-	pb "kratos-client/api/user"
 	"kratos-client/internal/biz"
-	"time"
 )
 
 // GreeterService is a greeter service.
@@ -23,38 +16,41 @@ type GreeterService struct {
 
 	uc     *biz.GreeterUsecase
 	log    *log.Helper
-	tracer trace.TracerProvider
+	tracer *trace.TracerProvider
 }
 
 // NewGreeterService new a greeter service.
-func NewGreeterService(uc *biz.GreeterUsecase, logger log.Logger, provider trace.TracerProvider) *GreeterService {
+func NewGreeterService(uc *biz.GreeterUsecase, logger log.Logger, provider *trace.TracerProvider) *GreeterService {
 	return &GreeterService{uc: uc, log: log.NewHelper(logger), tracer: provider}
 }
 
 // SayHello implements helloworld.GreeterServer
 func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1.HelloReply, error) {
 	foo := errors.BadRequest(v1.ErrorReason_ERROR_REASON_UNSPECIFIED.String(), "aaa")
-	//oerrors.New()
 	fmt.Println(foo)
-	conn, err := grpc.DialInsecure(ctx,
-		grpc.WithEndpoint("localhost:9502"),
-		grpc.WithMiddleware(middleware.Chain(
-			tracing.Client(
-				tracing.WithTracerProvider(s.tracer),
-				tracing.WithPropagators(
-					propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{}),
-				),
-			),
-			recovery.Recovery())),
-		grpc.WithTimeout(2*time.Second),
-	)
-	if err != nil {
-		return nil, err
+	//conn, err := grpc.DialInsecure(ctx,
+	//	grpc.WithEndpoint("localhost:9502"),
+	//	grpc.WithMiddleware(middleware.Chain(
+	//		tracing.Client(
+	//			tracing.WithTracerProvider(s.tracer),
+	//			tracing.WithPropagators(
+	//				propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{}),
+	//			),
+	//		),
+	//		recovery.Recovery())),
+	//	grpc.WithTimeout(2*time.Second),
+	//)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//c := pb.NewUserClient(conn)
+
+	greeter := biz.Greeter{
+		Hello: "lai",
 	}
-	c := pb.NewUserClient(conn)
-	r, err := c.GetUser(ctx, &pb.GetUserRequest{Name: "aaa", Id: 1})
+	r, err := s.uc.SayHello(ctx, &greeter)
 	if err != nil {
 		s.log.Infof("could not greet: %v", err)
 	}
-	return &v1.HelloReply{Message: "Hello " + r.User.Name}, nil
+	return &v1.HelloReply{Message: "Hello " + r.Name}, nil
 }

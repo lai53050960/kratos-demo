@@ -12,6 +12,13 @@ type Greeter struct {
 type GreeterRepo interface {
 	CreateGreeter(context.Context, *Greeter) error
 	UpdateGreeter(context.Context, *Greeter) error
+	SayHello(context.Context, *Greeter) (*UserGrpc, error)
+}
+
+type UserGrpc struct {
+	Id   int64
+	Age  int64
+	Name string
 }
 
 type GreeterUsecase struct {
@@ -29,4 +36,9 @@ func (uc *GreeterUsecase) Create(ctx context.Context, g *Greeter) error {
 
 func (uc *GreeterUsecase) Update(ctx context.Context, g *Greeter) error {
 	return uc.repo.UpdateGreeter(ctx, g)
+}
+
+func (uc *GreeterUsecase) SayHello(ctx context.Context, g *Greeter) (u *UserGrpc, err error) {
+
+	return uc.repo.SayHello(ctx, g)
 }
