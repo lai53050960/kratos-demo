@@ -24,7 +24,7 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string
+	Name = "kratos-demo"
 	// Version is the version of the compiled software.
 	Version string
 	// flagconf is the config flag.
@@ -100,12 +100,17 @@ func main() {
 		panic(err)
 	}
 
-	tp, err := tracerProvider("http://localhost:14268/api/traces")
+	tp, err := tracerProvider(bc.Trace.Endpoint)
 	if err != nil {
 		panic(err)
 	}
 
-	app, cleanup, err := initApp(bc.Server, bc.Data, loggerZap, tp)
+	var rc conf.Registry
+	if err := c.Scan(&rc); err != nil {
+		panic(err)
+	}
+
+	app, cleanup, err := initApp(bc.Server, &rc, bc.Data, loggerZap, tp)
 	if err != nil {
 		panic(err)
 	}

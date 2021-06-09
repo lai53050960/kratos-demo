@@ -23,8 +23,12 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 
 func (ar *userRepo) GetUser(ctx context.Context, id int64) (*biz.User, error) {
 	var user User
-	err := ar.data.db.WithContext(ctx).Where("a=?", 0).First(&user, id).Error
+	err := ar.data.db.WithContext(ctx).Where("id=?", 0).First(&user, id).Error
 
+	//err = errors2.Errorf("用户余额不足, uid: %d, money: %d", 1, 10) //在应用程序中出现错误时，使用 errors.New 或者 errors.Errorf 返回错误
+	//if err != nil {
+	//	return nil, errors2.WithMessage(err, "11111")
+	//}
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 报错

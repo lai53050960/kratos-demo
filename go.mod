@@ -4,16 +4,17 @@ go 1.15
 
 require (
 	github.com/envoyproxy/protoc-gen-validate v0.1.0
+	github.com/go-kratos/consul v0.1.0
 	github.com/go-kratos/kratos/v2 v2.0.0-rc1
 	github.com/golang/protobuf v1.5.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
+	github.com/hashicorp/consul/api v1.8.1
 	github.com/kr/text v0.2.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	go.opentelemetry.io/otel v0.20.0
 	go.opentelemetry.io/otel/exporters/trace/jaeger v0.20.0
 	go.opentelemetry.io/otel/sdk v0.20.0
-	go.opentelemetry.io/otel/trace v0.20.0
 	go.uber.org/zap v1.17.0
 	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
 	google.golang.org/genproto v0.0.0-20210524171403-669157292da3

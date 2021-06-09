@@ -2,12 +2,15 @@ package data
 
 import (
 	"context"
+	consul "github.com/go-kratos/consul/registry"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
+	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
+	consulAPI "github.com/hashicorp/consul/api"
 	"go.opentelemetry.io/otel/propagation"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"gorm.io/driver/mysql"
@@ -18,7 +21,7 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewGreeterRepo, NewUserRepo, NewUserServiceClient)
+var ProviderSet = wire.NewSet(NewData, NewGreeterRepo, NewUserRepo, NewUserServiceClient, NewDiscovery)
 
 // Data .
 type Data struct {
@@ -60,9 +63,10 @@ func NewData(conf *conf.Data, logger log.Logger, uc user.UserClient) (*Data, fun
 	}, nil
 }
 
-func NewUserServiceClient(tp *tracesdk.TracerProvider) user.UserClient {
+func NewUserServiceClient(tp *tracesdk.TracerProvider, r registry.Discovery) user.UserClient {
 	conn, err := grpc.DialInsecure(context.Background(),
-		grpc.WithEndpoint("localhost:9502"),
+		grpc.WithEndpoint("discovery:///message"),
+		grpc.WithDiscovery(r),
 		grpc.WithMiddleware(middleware.Chain(
 			tracing.Client(
 				tracing.WithTracerProvider(tp),
@@ -78,4 +82,16 @@ func NewUserServiceClient(tp *tracesdk.TracerProvider) user.UserClient {
 	}
 	c := user.NewUserClient(conn)
 	return c
+}
+
+func NewDiscovery(conf *conf.Registry) registry.Discovery {
+	c := consulAPI.DefaultConfig()
+	c.Address = conf.Consul.Address
+	c.Scheme = conf.Consul.Scheme
+	cli, err := consulAPI.NewClient(c)
+	if err != nil {
+		panic(err)
+	}
+	r := consul.New(cli)
+	return r
 }

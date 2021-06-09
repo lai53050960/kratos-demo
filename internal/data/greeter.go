@@ -40,6 +40,6 @@ func (r *greeterRepo) SayHello(ctx context.Context, g *biz.Greeter) (*biz.UserGr
 	return &biz.UserGrpc{
 		Id:   getUser.User.Id,
 		Age:  1,
-		Name: g.Hello,
+		Name: getUser.User.Name,
 	}, nil
 }
