@@ -18,11 +18,25 @@ type ZapLogger struct {
 
 // 创建一个 ZapLogger 实例
 func NewZapLogger(encoder zapcore.EncoderConfig, level zap.AtomicLevel, opts ...zap.Option) *ZapLogger {
-	writeSyncer := getLogWriter()
+
+	//自定义日志级别：自定义Info级别
+	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl < zapcore.WarnLevel && lvl >= zap.DebugLevel
+	})
+	//自定义日志级别：自定义Warn级别
+	warnLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.WarnLevel
+	})
+
+	writeInfoSyncer := getLogWriter("./logs/info.log")
+
+	writeErrorSyncer := getLogWriter("./logs/error.log")
+
 	// 设置 zapcore
-	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(encoder),
-		writeSyncer, level)
+	core := zapcore.NewTee(
+		zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), writeInfoSyncer, infoLevel),
+		zapcore.NewCore(zapcore.NewConsoleEncoder(encoder), writeErrorSyncer, warnLevel),
+	)
 	//  new 一个 *zap.Logger
 	zapLogger := zap.New(core, opts...)
 	return &ZapLogger{log: zapLogger, Sync: zapLogger.Sync}
@@ -53,9 +67,9 @@ func (l *ZapLogger) Log(level log.Level, keyvals ...interface{}) error {
 }
 
 // 日志自动切割，采用 lumberjack 实现的
-func getLogWriter() zapcore.WriteSyncer {
+func getLogWriter(path string) zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:   "./logs/main.log",
+		Filename:   path,
 		MaxSize:    1,
 		MaxBackups: 5,
 		MaxAge:     1,

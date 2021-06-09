@@ -18,6 +18,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"kratos-client/internal/conf"
 	logger2 "kratos-client/internal/logger"
+	"time"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -52,17 +53,21 @@ func main() {
 	//logger := log.NewStdLogger(os.Stdout)
 
 	encoder := zapcore.EncoderConfig{
-		TimeKey:        "t",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		MessageKey:     "msg",
-		StacktraceKey:  "stack",
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		TimeKey:       "t",
+		LevelKey:      "level",
+		NameKey:       "logger",
+		CallerKey:     "caller",
+		MessageKey:    "msg",
+		StacktraceKey: "stack",
+		//EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeTime: func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.Format("2006-01-02 15:04:05"))
+		},
+		LineEnding:  zapcore.DefaultLineEnding,
+		EncodeLevel: zapcore.LowercaseLevelEncoder,
+		// EncodeLevel:  zapcore.CapitalLevelEncoder, //将日志级别转换成大写（INFO，WARN，ERROR等）
 		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.FullCallerEncoder,
+		EncodeCaller:   zapcore.FullCallerEncoder, //采用短文件路径编码输出（test/main.go:14
 	}
 
 	loggerZap := logger2.NewZapLogger(
