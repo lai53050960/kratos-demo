@@ -6,6 +6,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/go-kratos/consul v0.1.0
 	github.com/go-kratos/kratos/v2 v2.0.0-rc1
+	github.com/go-kratos/sentry v0.0.0-20210530063834-774a1d992b5b
 	github.com/golang/protobuf v1.5.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/mux v1.8.0
