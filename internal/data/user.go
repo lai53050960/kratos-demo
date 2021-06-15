@@ -5,6 +5,7 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
+	v1 "kratos-client/api/helloworld/v1"
 	"kratos-client/internal/biz"
 )
 
@@ -64,7 +65,8 @@ func (ar *userRepo) GetUserOrFail(ctx context.Context, id int64) (*biz.User, err
 			//log2.Fatal(fmt.Sprintf("%+v\n", err))
 			//
 			//return nil, fmt.Errorf("%w, data is nil", err)
-			return nil, errors.New(400, "reason", "没有找到数据")
+			//return nil, RecordNotFoundError
+			return nil, errors.New(400, v1.ErrorReason_ERROR_REASON_UNSPECIFIED.String(), "没有找到数据")
 		} else {
 			// 只记记录
 			ar.log.Error(err)
