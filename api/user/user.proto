@@ -8,6 +8,7 @@ option java_package = "api.user";
 
 import "validate/validate.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 
 service User {
     rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
@@ -31,7 +32,15 @@ message Users {
 message CreateUserRequest {}
 message CreateUserReply {}
 
-message UpdateUserRequest {}
+message UserInfo {
+    uint32 id = 1;
+    string name = 2;
+    uint32 age = 3;
+}
+message UpdateUserRequest {
+    UserInfo user = 1;
+    google.protobuf.FieldMask mark = 2;
+}
 message UpdateUserReply {}
 
 message DeleteUserRequest {}
@@ -43,7 +52,7 @@ message GetUserRequest {
 }
 
 message GetUserReply {
-     Users user = 1;
+    Users user = 1;
 }
 
 message ListUserRequest {

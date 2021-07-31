@@ -70,7 +70,7 @@ func NewUserServiceClient(tp *tracesdk.TracerProvider, r registry.Discovery) use
 		grpc.WithMiddleware(middleware.Chain(
 			tracing.Client(
 				tracing.WithTracerProvider(tp),
-				tracing.WithPropagators(
+				tracing.WithPropagator(
 					propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{}),
 				),
 			),

@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"kratos-client/api/user"
 	"kratos-client/internal/biz"
 )
@@ -25,6 +26,23 @@ func (r *greeterRepo) CreateGreeter(ctx context.Context, g *biz.Greeter) error {
 }
 
 func (r *greeterRepo) UpdateGreeter(ctx context.Context, g *biz.Greeter) error {
+
+	req := &user.UpdateUserRequest{
+		User: &user.UserInfo{
+			Name: "name",
+			Age:  2,
+			Id:   1,
+		},
+		Mark: &field_mask.FieldMask{
+			Paths: []string{"name", "age"},
+		},
+	}
+
+	_, err := r.data.uc.UpdateUser(ctx, req)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

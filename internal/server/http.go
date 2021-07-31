@@ -27,20 +27,25 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, userService 
 	if c.Http.Timeout != nil {
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
-	srv := http.NewServer(opts...)
+
 	m := http.Middleware(
 		middleware.Chain(
-			recovery.Recovery(),
+			recovery.Recovery(recovery.WithLogger(logger)),
 			tracing.Server(
 				tracing.WithTracerProvider(tracer),
-				tracing.WithPropagators(
+				tracing.WithPropagator(
 					propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{}),
 				),
 			),
 			logging.Server(logger),
 		),
 	)
-	srv.HandlePrefix("/helloworld", v1.NewGreeterHandler(greeter, m))
-	srv.HandlePrefix("/api.user.User", user.NewUserHandler(userService, m))
+
+	opts = append(opts, m)
+	srv := http.NewServer(opts...)
+
+	v1.RegisterGreeterHTTPServer(srv, greeter)
+	user.RegisterUserHTTPServer(srv, userService)
+
 	return srv
 }

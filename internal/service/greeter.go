@@ -46,9 +46,12 @@ func (s *GreeterService) SayHello(ctx context.Context, in *v1.HelloRequest) (*v1
 	greeter := biz.Greeter{
 		Hello: "lai",
 	}
-	r, err := s.uc.SayHello(ctx, &greeter)
+	_, err := s.uc.SayHello(ctx, &greeter)
 	if err != nil {
 		s.log.Infof("could not greet: %v", err)
 	}
-	return &v1.HelloReply{Message: "Hello " + r.Name}, nil
+	//if r.Name == nil {
+	//	r.Name = ""
+	//}
+	return &v1.HelloReply{Message: "Hello"}, nil
 }

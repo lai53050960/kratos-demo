@@ -40,5 +40,10 @@ func (uc *GreeterUsecase) Update(ctx context.Context, g *Greeter) error {
 
 func (uc *GreeterUsecase) SayHello(ctx context.Context, g *Greeter) (u *UserGrpc, err error) {
 
-	return uc.repo.SayHello(ctx, g)
+	//return uc.repo.SayHello(ctx, g)
+	err = uc.repo.UpdateGreeter(ctx, g)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
